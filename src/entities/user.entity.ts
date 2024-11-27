@@ -1,14 +1,12 @@
-import { Entity, Column, BeforeInsert, ObjectIdColumn } from 'typeorm';
+import { Entity, Column, BeforeInsert } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { IsEmail, Length } from 'class-validator';
 import { classToPlain, Exclude } from "class-transformer";
-import { ObjectId } from 'mongodb';
+import { BasesEntity } from "./base.entity";
+// import { ObjectId } from 'mongodb';
 
 @Entity('users') // Ensure this is the correct collection name
-export class UserEntity {
-  @ObjectIdColumn() // MongoDB's _id field is automatically generated as an ObjectId
-  _id: ObjectId;
-
+export class UserEntity extends BasesEntity{
   @IsEmail()
   @Column({ unique: true }) // Ensure email is unique
   email: string;
@@ -35,11 +33,16 @@ export class UserEntity {
   async comparePassword(attempt: string) {
     return await bcrypt.compare(attempt, this.password);
   }
-
   toJSON() {
+    const plain = classToPlain(this); // Convert the entity to plain object
+    const { _id, createdAt, updatedAt, deletedAt, ...rest } = plain; // Destructure to separate the fields
+
     return {
-      ...classToPlain(this),
       _id: this._id.toHexString(),
-    }
+      ...rest,
+      createdAt,
+      updatedAt,
+      deletedAt,
+    };
   }
 }
