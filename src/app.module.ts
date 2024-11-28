@@ -8,6 +8,14 @@ import { JwtModule } from '@nestjs/jwt';
 import * as process from 'node:process';
 import * as dotenv from 'dotenv';
 import { UserEntity } from './entities/user.entity';
+import { PostsService } from './posts/posts.service';
+import { PostsController } from './posts/posts.controller';
+import { PostsModule } from './posts/posts.module';
+import { PostEntity } from "./entities/post.entity";
+import { CommentsModule } from './comments/comments.module';
+import { CommentsService } from "./comments/comments.service";
+import { CommentsController } from "./comments/comments.controller";
+import { CommentEntity } from "./entities/comment.entity";
 dotenv.config();
 
 @Module({
@@ -18,17 +26,19 @@ dotenv.config();
       synchronize: true,
       logging: true,
       useUnifiedTopology: true,
-      entities: [UserEntity],
+      entities: [UserEntity, PostEntity, CommentEntity],
     }),
-    TypeOrmModule.forFeature([UserEntity]),
+    TypeOrmModule.forFeature([UserEntity, PostEntity, CommentEntity]),
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.register({
       secret: process.env.SECRET,
       signOptions: { expiresIn: '3h' },
     }),
     AuthModule,
+    PostsModule,
+    CommentsModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [AppController, PostsController, CommentsController],
+  providers: [AppService, PostsService],
 })
 export class AppModule {}

@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -24,10 +24,12 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     if (!user) {
       throw new UnauthorizedException('User not found');
     }
-    const token = this.getTokenFromPayload(user.email);
-    if (this.authService.isTokenBlacklisted(token)) {
+
+    const token = this.getTokenFromPayload(payload);
+    if (await this.authService.isTokenBlacklisted(token)) {
       throw new UnauthorizedException('Token has been blacklisted');
     }
+
     return user;
   }
 

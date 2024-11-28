@@ -1,8 +1,10 @@
-import { Entity, Column, BeforeInsert } from 'typeorm';
+import { Entity, Column, BeforeInsert, OneToMany } from "typeorm";
 import * as bcrypt from 'bcrypt';
 import { IsEmail, Length } from 'class-validator';
 import { classToPlain, Exclude } from "class-transformer";
 import { BasesEntity } from "./base.entity";
+import { PostEntity } from "./post.entity";
+import { CommentEntity } from "./comment.entity";
 // import { ObjectId } from 'mongodb';
 
 @Entity('users') // Ensure this is the correct collection name
@@ -24,6 +26,12 @@ export class UserEntity extends BasesEntity{
   @Exclude()
   @Length(4, 100)
   password: string;
+
+  @OneToMany(() => PostEntity, (post) => post.user)
+  posts: PostEntity[];
+
+  @OneToMany(() => CommentEntity, (comment) => comment.user)
+  comments: CommentEntity[];
 
   @BeforeInsert()
   async hashPassword() {

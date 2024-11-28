@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from "@nestjs/common";
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { JwtStrategy } from "./jwt.strategy";
@@ -8,6 +8,8 @@ import { UserEntity } from "../entities/user.entity";
 import { JwtModule } from "@nestjs/jwt";
 import * as process from "node:process";
 import * as dotenv from 'dotenv';
+import { JwtAuthGuard } from "./auth.guard";
+import { PostsModule } from "../posts/posts.module";
 
 dotenv.config();
 @Module({
@@ -18,9 +20,10 @@ dotenv.config();
       secret: process.env.SECRET,
       signOptions: { expiresIn: '3h' }, // Token expiration time
     }),
+    forwardRef(() => PostsModule),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy], // Register AuthService and JwtStrategy
-  exports: [JwtStrategy, PassportModule], // Export them for use in other modules
+  providers: [AuthService, JwtStrategy, JwtAuthGuard],
+  exports: [JwtStrategy, PassportModule, AuthService],
 })
 export class AuthModule {}

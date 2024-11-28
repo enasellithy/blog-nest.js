@@ -9,10 +9,12 @@ import { LoginDTO, RegisterDTO } from "../users/user.dto";
 export class AuthService {
 
   private blacklistedTokens = new Set<string>();
+
   constructor(
     @InjectRepository(UserEntity) private userRepo: Repository<UserEntity>,
     private jwtService: JwtService,
   ) {
+    console.log('AuthService constructor called');
   }
 
   async register(credentials: RegisterDTO) {
